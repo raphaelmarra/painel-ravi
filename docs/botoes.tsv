@@ -1,0 +1,26 @@
+id	tela	rotulo	comando_fixo	parametros_validacao	classe	confirmacao	resultado_esperado	prova
+inicio.estado	Inicio	Atualizar estado	root:guard_status + ravi:pm2 jlist	-	L	nao	cartoes verde/amarelo/vermelho por servico	cartao bate com status.json
+inicio.reiniciar	Inicio	Reiniciar servico	pm2 restart <svc>	svc in {ravi,omni-api,omni-nats,omni-pg}	M	sim	servico online com pid novo	pid muda e sonda ok
+inicio.backup	Inicio	Backup agora	root:backup	-	M	nao	arquivo novo em ~/backups	arquivo novo listado
+inicio.diagnostico	Inicio	Diagnostico	ravi doctor --json	-	L	nao	erros e avisos em lista	lista bate com o CLI
+wpp.lista	WhatsApp	Conexoes	ravi instances list --json	-	L	nao	instancias com status	bate com omni instances list
+wpp.nova	WhatsApp	Nova conexao (assistente)	omni instances create --name N --channel whatsapp-baileys; ravi instances create N --agent A --channel whatsapp; ravi instances set N instanceId ID; omni instances connect ID; omni instances pair ID --phone P	N ^[a-z0-9-]{3,30}$; P ^\+55\d{10,11}$; A in agentes	M+E	sim	codigo de 8 caracteres e passo a passo; status ate conectado	o dono digita o codigo; status connected
+wpp.qr	WhatsApp	Mostrar QR	omni instances qr ID	ID da lista	L	nao	QR desenhado	o dono lê o QR (alternativa)
+wpp.agente	WhatsApp	Trocar agente	ravi instances set N agent A	N da lista; A in agentes	M	nao	instancia aponta para A	instances show
+wpp.desconectar	WhatsApp	Desconectar	ravi instances disconnect N	N digitado igual	D	sim, digitar nome	instancia desconectada	status disconnected
+con.console	Conexoes	Conectar ao Ravi Console	ravi login --no-open --json	-	S+E	sim	link + codigo; espera aprovacao	ravi whoami mostra usuario
+con.logout	Conexoes	Desligar do Console	ravi logout	-	D	sim	desligado	whoami vazio
+con.claude	Conexoes	Token do Claude	grava CLAUDE_CODE_OAUTH_TOKEN em ~/.ravi/.env; ravi daemon restart	token ^[A-Za-z0-9._-]{20,400}$	S	sim	gravado, nunca exibido	teste de provider responde
+con.codex	Conexoes	Instalar e logar Codex	bun add -g @openai/codex; codex login --device-auth	-	S+E	sim	link + codigo	codex login status ok
+con.teste	Conexoes	Testar provider	ravi sessions send agent:main "Responda so: ok" --wait	-	E	sim (gasta credito)	resposta ok	texto da resposta
+ag.ver	Agente	Ver instrucoes	ler AGENTS.md do agente (cwd por ravi agents show A --json)	A in agentes	L	nao	texto no editor	bate com arquivo
+ag.salvar	Agente	Salvar instrucoes	grava AGENTS.md; versao anterior em .historico/	texto ate 200 KB	M	nao	salvo	arquivo novo + historico
+ag.teste	Agente	Conversa de teste	ravi sessions send agent:A <texto> --wait	texto ate 2000 caracteres	E	sim	resposta do agente	texto da resposta
+al.destino	Alertas	Destino dos alertas	root:alert_config INST NUM	INST da lista; NUM ^\+55\d{10,11}$	M	nao	alert.sh gerado	arquivo existe e e executavel
+al.teste	Alertas	Enviar alerta de teste	root:alert_test	-	E	sim	mensagem no WhatsApp do dono	o dono confirma o recebimento
+sis.logs	Sistema	Logs	pm2 logs <svc> --nostream --lines 100 | root:guard_log	svc na lista	L	nao	ultimas linhas	bate com arquivo
+sis.tela	Sistema	Modo da tela	root:screen uso|servidor	modo in {uso,servidor}	M	nao	brilho e tempo trocados	settings get confere
+sis.versoes	Sistema	Versoes	versoes fixas (os-release, ravi, omni, node, bun, lineage, magisk)	-	L	nao	tabela	bate com comandos
+sis.atualizar	Sistema	Atualizar agora	root:update	-	D	sim	relatorio do update.sh	update.log
+sis.reboot	Sistema	Reiniciar o S20	root:reboot	-	D	sim, digitar REINICIAR	aparelho reinicia e painel volta	painel responde depois
+sis.pin	Sistema	Trocar PIN	novo hash em ~/.painel/auth.json	PIN ^\d{6,12}$ duas vezes	S	sim	PIN trocado	login com PIN novo

@@ -1,0 +1,4 @@
+#!/system/bin/sh
+# Copie para alert.sh e torne executavel para receber alertas.
+# Exemplo com o Omni, depois de criar a instancia de WhatsApp:
+# /data/adb/ravi/chroot.sh su - ravi -c "omni send --instance <instancia> --to <+55...> --text '[S20] $1'"

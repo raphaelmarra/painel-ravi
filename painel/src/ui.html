@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icone.svg">
+<title>Painel S20</title>
+<style>
+:root{--bg:#000;--card:#0d1117;--card2:#151b23;--line:#232b36;--txt:#e6edf3;--sub:#8b98a5;--ok:#3ddc97;--warn:#f5b84a;--err:#ff6b6b;--acc:#3ddc97;--r:14px}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+body{padding:env(safe-area-inset-top) 0 calc(76px + env(safe-area-inset-bottom))}
+main{max-width:760px;margin:0 auto;padding:16px}
+h1{font-size:22px;margin:4px 0 14px}h2{font-size:16px;margin:0 0 10px;color:var(--sub);font-weight:600;letter-spacing:.02em}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin:0 0 12px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.grow{flex:1}
+button,.btn{min-height:48px;padding:0 16px;border-radius:12px;border:1px solid var(--line);background:var(--card2);color:var(--txt);font:inherit;font-weight:600;cursor:pointer}
+button.pri{background:var(--acc);color:#04130c;border-color:transparent}button.perigo{color:var(--err);border-color:#4a2327}
+button:disabled{opacity:.5}
+input,select,textarea{width:100%;min-height:48px;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:#06090d;color:var(--txt);font:inherit}
+textarea{min-height:240px;font:14px/1.5 ui-monospace,Menlo,monospace}
+label{display:block;font-size:14px;color:var(--sub);margin:10px 0 6px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:99px;font-size:13px;font-weight:600;background:var(--card2)}
+.chip.ok{color:var(--ok)}.chip.warn{color:var(--warn)}.chip.err{color:var(--err)}
+.chip::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.svc{background:var(--card2);border-radius:12px;padding:10px 12px}.svc b{display:block;font-size:14px}.svc small{color:var(--sub)}
+.lista>div{display:flex;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}.lista>div:first-child{border-top:0}
+pre{white-space:pre-wrap;word-break:break-word;background:#06090d;border:1px solid var(--line);border-radius:12px;padding:12px;font:13px/1.5 ui-monospace,Menlo,monospace;max-height:360px;overflow:auto;margin:8px 0 0}
+.sub{color:var(--sub);font-size:14px}.codigo{font:700 34px/1.2 ui-monospace,Menlo,monospace;letter-spacing:.12em;text-align:center;padding:14px;border:2px dashed var(--acc);border-radius:14px;margin:10px 0;color:var(--acc)}
+nav{position:fixed;left:0;right:0;bottom:0;background:#05070acc;backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:6px 4px calc(6px + env(safe-area-inset-bottom));z-index:5}
+nav button{flex:1;min-height:56px;background:none;border:0;color:var(--sub);font-size:11px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:0}
+nav button[aria-current=page]{color:var(--acc)}nav svg{width:22px;height:22px}
+@media(min-width:900px){body{padding-bottom:0;padding-left:110px}nav{top:0;right:auto;width:96px;flex-direction:column;justify-content:flex-start;border-top:0;border-right:1px solid var(--line);padding-top:20px}}
+.modal{position:fixed;inset:0;background:#000c;display:none;align-items:flex-end;justify-content:center;z-index:9}
+.modal.on{display:flex}.modal .card{width:100%;max-width:560px;border-radius:18px 18px 0 0;margin:0;max-height:88vh;overflow:auto}
+@media(min-width:700px){.modal{align-items:center}.modal .card{border-radius:18px}}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:92px;background:var(--card2);border:1px solid var(--line);padding:12px 16px;border-radius:12px;z-index:10;display:none;max-width:90vw}
+.spin{width:18px;height:18px;border:3px solid var(--line);border-top-color:var(--acc);border-radius:50%;animation:g 1s linear infinite;display:inline-block;vertical-align:middle}@keyframes g{to{transform:rotate(360deg)}}
+.hide{display:none!important}body.vps .so-s20{display:none!important}body:not(.vps) .so-vps{display:none!important}
+details.av{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin:0 0 12px}details.av summary{cursor:pointer;font-weight:600;color:var(--sub);min-height:32px;display:flex;align-items:center}details.av[open] summary{margin-bottom:10px}
+.guia{background:#06090d;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:8px 0;font-size:14px;color:var(--sub)}.guia ol{margin:6px 0 0 18px;padding:0}.conv{display:block;width:100%;text-align:left;margin:6px 0;min-height:44px}.conv.sel{border-color:var(--acc);color:var(--acc)}
+#topo{display:flex;align-items:center;gap:10px;margin:0 0 6px}#topo select{width:auto;min-height:40px;padding:6px 10px}a{color:var(--acc)}
+</style>
+</head>
+<body>
+<div id="login" class="hide"><main><h1>Painel S20</h1><div class="card"><label for="pin">PIN</label><input id="pin" inputmode="numeric" autocomplete="current-password" type="password" maxlength="12"><p class="sub" id="loginErro"></p><button class="pri" style="width:100%" onclick="entrar()">Entrar</button></div></main></div>
+
+<div id="app" class="hide"><main><div id="topo"><span class="sub">Servidor</span><select id="srvSel" onchange="trocaServidor()"></select></div><div id="tela"></div></main>
+<nav id="nav"></nav></div>
+
+<div class="modal" id="modal"><div class="card" id="modalCorpo"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $=s=>document.querySelector(s), esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const ICON={inicio:'<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',wpp:'<path d="M4 20l1.3-4A8 8 0 1 1 8 18.7z"/>',con:'<path d="M9 15l6-6M10 6l1-1a4 4 0 0 1 6 6l-1 1M14 18l-1 1a4 4 0 0 1-6-6l1-1"/>',ag:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',al:'<path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 21h4"/>',sis:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/>'};
+const TELAS=[["inicio","Início"],["wpp","WhatsApp"],["con","Conexões"],["ag","Agente"],["al","Alertas"],["sis","Sistema"]];
+let atual="inicio", MODO="s20";
+async function carregaInfo(){try{const i=await api("/api/info");MODO=i.modo;document.body.classList.toggle("vps",MODO==="vps");document.title="Painel "+i.nome;
+  const lista=i.servidores.length?i.servidores:[{nome:i.nome,url:location.origin}];
+  $("#srvSel").innerHTML=lista.map(s=>`<option value="${esc(s.url)}" ${s.nome===i.nome?"selected":""}>${esc(s.nome)}</option>`).join("");window.srvAtual=$("#srvSel").selectedIndex;}catch{}}
+function trocaServidor(){const u=$("#srvSel").value;if(!u||location.href.startsWith(u))return;
+  if(/^(127\.0\.0\.1|localhost)$/.test(location.hostname)){toast("Este servidor abre só em aparelhos com Tailscale (Mac ou celular). Na tela do S20, use o painel do S20.",6000);$("#srvSel").selectedIndex=window.srvAtual||0;return}
+  location.href=u}
+
+async function api(caminho,corpo){
+  const o=corpo===undefined?{}:{method:"POST",headers:{"content-type":"application/json","x-painel":"1"},body:JSON.stringify(corpo)};
+  const res=await fetch(caminho,o); const d=await res.json().catch(()=>({}));
+  if(res.status===401&&caminho!=="/api/login"){mostraLogin();throw new Error("Entre com o PIN.");}
+  if(!res.ok)throw new Error(d.texto||d.erro||"Falhou ("+res.status+")");
+  return d;
+}
+const acao=(id,params={})=>api("/api/acao",{id,params});
+function toast(t,ms=3200){const e=$("#toast");e.textContent=t;e.style.display="block";clearTimeout(e._t);e._t=setTimeout(()=>e.style.display="none",ms)}
+function historico(id,ok,texto){try{const h=JSON.parse(localStorage.getItem("hist")||"[]");h.unshift({t:new Date().toLocaleString("pt-BR"),id,ok,texto});localStorage.setItem("hist",JSON.stringify(h.slice(0,20)))}catch{}}
+
+// ---------- confirmação e execução ----------
+const AVISO={D:"Esta ação não tem volta.",E:"Esta ação envia mensagem ou gasta crédito do provider.",S:"Esta ação grava ou usa uma credencial."};
+function confirma(titulo,classe,texto,digitar){return new Promise(ok=>{
+  $("#modalCorpo").innerHTML=`<h1>${esc(titulo)}</h1><p><span class="chip ${classe==="D"?"err":"warn"}">${esc(AVISO[classe]||"Confirme")}</span></p><p>${esc(texto)}</p>${digitar?`<label>Digite <b>${esc(digitar)}</b> para confirmar</label><input id="cfDig" autocomplete="off">`:""}<div class="row" style="margin-top:14px"><button class="grow" id="cfN">Cancelar</button><button class="grow ${classe==="D"?"perigo":"pri"}" id="cfS">Confirmar</button></div>`;
+  $("#modal").classList.add("on");
+  $("#cfN").onclick=()=>{$("#modal").classList.remove("on");ok(false)};
+  $("#cfS").onclick=()=>{if(digitar&&$("#cfDig").value!==digitar){toast("O texto não confere.");return}$("#modal").classList.remove("on");ok(digitar?$("#cfDig").value:true)};
+})}
+async function executa(id,params,{rotulo,classe="L",texto="",digitar,alvo}={}){
+  if("DES".includes(classe)&&classe!=="L"){const c=await confirma(rotulo,classe,texto,digitar);if(!c)return null;if(digitar)params={...params,confirma:c}}
+  const el=alvo&&$(alvo); if(el)el.innerHTML=`<p><span class="spin"></span> Executando: ${esc(rotulo)}…</p>`;
+  try{const d=await acao(id,params);
+    if(d.job){return await acompanha(d.job,rotulo,el)}
+    historico(id,d.ok,d.texto); if(el)el.innerHTML=`<p><span class="chip ${d.ok?"ok":"err"}">${d.ok?"ok":"erro"}</span> ${esc(d.texto)}</p>`; else toast(d.texto);
+    return d;
+  }catch(e){historico(id,false,e.message);if(el)el.innerHTML=`<p><span class="chip err">erro</span> ${esc(e.message)}</p>`;else toast(e.message);return null}
+}
+// Tarefas longas: mostra a saída ao vivo; destaca código, links e conexão.
+function realce(s){
+  let h=esc(s); const cod=(s.match(/CODIGO=([A-Z0-9-]+)/)||[])[1];
+  h=h.replace(/CODIGO=[A-Z0-9-]+\n?/,"").replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>');
+  const dev=(s.match(/\b([A-Z0-9]{4}-[A-Z0-9]{4,5})\b/)||[])[1];
+  return (cod?`<div class="codigo">${esc(cod)}</div>`:dev&&!cod?`<div class="codigo">${esc(dev)}</div>`:"")+`<pre>${h}</pre>`;
+}
+async function acompanha(job,rotulo,el){
+  const alvo=el||(()=>{$("#modalCorpo").innerHTML=`<h1>${esc(rotulo)}</h1><div id="jobAlvo"></div><button style="width:100%;margin-top:12px" onclick="$('#modal').classList.remove('on')">Fechar</button>`;$("#modal").classList.add("on");return $("#jobAlvo")})();
+  for(;;){
+    const j=await api("/api/job/"+job).catch(e=>({fim:true,rc:1,saida:/tarefa não encontrada/.test(e.message)?"O painel reiniciou durante a tarefa (normal numa atualização). A tarefa continua no S20: veja o resultado em Sistema → Logs → atualização.":e.message}));
+    const ok=j.fim&&j.rc===0, est=j.fim?(ok?'<span class="chip ok">concluído</span>':'<span class="chip err">não concluído</span>'):'<span class="spin"></span> em andamento';
+    alvo.innerHTML=`<p>${est}</p>`+realce(j.saida||"");
+    if(j.fim){historico(job,ok,rotulo);return j}
+    await new Promise(r=>setTimeout(r,2500));
+  }
+}
+
+// ---------- telas ----------
+const T={};
+T.inicio=async()=>{
+  tela(`<h1>Início</h1><div class="card"><div class="row"><h2 class="grow">Serviços</h2><button onclick="T.inicio()">Atualizar</button></div><div id="svcs"><span class="spin"></span></div></div>
+  <div class="card so-s20"><h2>Cópia de segurança</h2><p class="sub">Guarda o banco do WhatsApp e os dados do RAVI no S20. Já roda sozinha todo dia às 3h.</p><button style="width:100%" onclick="executa('inicio.backup',{},{rotulo:'Backup agora'})">Fazer cópia agora</button></div>
+  <details class="av"><summary>Avançado (para quando algo falhar)</summary>
+  <label>Religar uma parte do sistema</label><div class="row"><select id="svcSel" class="grow"><option value="ravi">RAVI (agentes)</option><option value="omni-api">Ponte do WhatsApp</option><option value="omni-nats">Fila interna</option><option value="omni-pg">Banco de dados</option><option value="ravi-channels">Canais do RAVI</option></select><button onclick="executa('inicio.reiniciar',{svc:$('#svcSel').value},{rotulo:'Religar '+$('#svcSel').selectedOptions[0].text,classe:'D',texto:'Essa parte para por alguns segundos e volta sozinha.',alvo:'#acRes'})">Religar</button></div>
+  <button style="width:100%;margin-top:8px" onclick="diag()">Diagnóstico técnico</button><div id="acRes"></div></details>
+  <div class="card so-s20"><h2>Últimos alertas</h2><div id="alertas" class="sub">—</div></div><div class="card"><h2>Histórico neste aparelho</h2><div id="hist" class="lista sub"></div></div>`);
+  try{const h=JSON.parse(localStorage.getItem("hist")||"[]");$("#hist").innerHTML=h.length?h.map(x=>`<div><span class="chip ${x.ok?"ok":"err"}">${x.ok?"ok":"erro"}</span><span class="grow">${esc(x.texto)}</span><small>${esc(x.t)}</small></div>`).join(""):"Nenhuma ação ainda."}catch{}
+  try{const d=(await acao("inicio.estado")).dados, g=d.guardiao||{};
+    const nomes={omni:"Ponte do WhatsApp",pg:"Banco de dados",nats:"Fila interna",ravi:"RAVI (agentes)",ts:"Acesso remoto",dns:"Internet"};
+    $("#svcs").innerHTML=`<div class="grid">${Object.entries(nomes).map(([k,n])=>`<div class="svc"><b>${n}</b><span class="chip ${g[k]==="ok"?"ok":"err"}">${g[k]==="ok"?"funcionando":"com falha"}</span></div>`).join("")}</div><p class="sub so-s20">Bateria ${esc(g.bateria||"?")}% · ${g.bat_modo==="carregando"?"carregando até o máximo":g.bat_modo==="drenando"?"drenando até o mínimo":"ciclo automático"}</p><p class="sub">Verificado às ${esc((g.time||"").slice(11,16)||"—")} · chave do Tailscale expira em ${esc(g.ts_expiry_days||"?")} dias</p>`;
+    $("#alertas").innerHTML=d.alertas.length?`<pre>${esc(d.alertas.join("\n"))}</pre>`:"Nenhum alerta.";
+  }catch(e){$("#svcs").textContent=e.message}
+};
+async function diag(){$("#acRes").innerHTML='<p><span class="spin"></span> Diagnóstico…</p>';try{const d=await acao("inicio.diagnostico");$("#acRes").innerHTML=`<p>${esc(d.texto)}</p>`+(d.dados.length?`<div class="lista">${d.dados.map(x=>`<div><span class="chip ${x.nivel==="error"?"err":"warn"}">${esc(x.nivel)}</span><span>${esc(x.resumo||x.id)}</span></div>`).join("")}</div>`:"")}catch(e){$("#acRes").textContent=e.message}}
+
+let agentes=["main"];
+async function carregaAgentes(){try{agentes=(await acao("ag.lista")).dados;if(!agentes.length)agentes=["main"]}catch{}}
+const opAg=s=>agentes.map(a=>`<option ${a===s?"selected":""}>${esc(a)}</option>`).join("");
+T.wpp=async()=>{
+  tela(`<h1>WhatsApp</h1><div class="card"><div class="row"><h2 class="grow">Conexões</h2><button class="pri" onclick="novaConexao()">Nova conexão</button></div><div id="wlist"><span class="spin"></span></div></div><div id="wres"></div>`);
+  await carregaAgentes();
+  try{const l=(await acao("wpp.lista")).dados;
+    $("#wlist").innerHTML=l.length?`<div class="lista">${l.map(i=>`<div style="flex-wrap:wrap"><div class="grow"><b>${esc(i.nome)}</b> <span class="chip ${i.status==="conectado"?"ok":"warn"}">${esc(i.status)}</span><div class="sub">agente ${esc(i.agente||"—")} ${i.perfil?"· "+esc(i.perfil):""}</div></div>
+    <div class="row"><button onclick="rotas('${esc(i.nome)}')">Rotas</button>${i.status==="conectado"?`<button disabled title="Só para conexão desconectada">Código</button>`:`<button onclick="parear('${esc(i.nome)}','${esc(i.status)}')">Código</button>`}<button onclick="qr('${esc(i.nome)}')">QR</button><button onclick="trocaAgente('${esc(i.nome)}','${esc(i.agente||"")}')">Agente</button><button class="perigo so-s20" onclick="executa('wpp.desconectar',{nome:'${esc(i.nome)}'},{rotulo:'Desconectar ${esc(i.nome)}',classe:'D',texto:'O WhatsApp deste número para de falar com o RAVI até conectar de novo.',digitar:'${esc(i.nome)}',alvo:'#wres'}).then(()=>T.wpp())">Desconectar</button></div></div>`).join("")}</div>`:`<p class="sub">Nenhuma conexão. Toque em <b>Nova conexão</b>.</p>`;
+  }catch(e){$("#wlist").textContent=e.message}
+};
+function novaConexao(){
+  $("#modalCorpo").innerHTML=`<h1>Nova conexão de WhatsApp</h1><p class="sub">Passo 1 de 2 · dados</p>
+  <label>Nome da conexão</label><input id="nNome" placeholder="ex.: principal" value="principal" autocapitalize="off">
+  <label>Número do WhatsApp que vai conectar</label><input id="nFone" inputmode="tel" placeholder="+5511999999999" value="+55">
+  <label>Agente que responde</label><select id="nAg">${opAg("main")}</select>
+  <p class="sub" id="nErr"></p><div class="row" style="margin-top:12px"><button class="grow" onclick="$('#modal').classList.remove('on')">Cancelar</button><button class="grow pri" onclick="gerarCodigo()">Gerar código</button></div>`;
+  $("#modal").classList.add("on");
+}
+async function gerarCodigo(){
+  const nome=$("#nNome").value.trim(), fone=$("#nFone").value.replace(/[^\d+]/g,""), agente=$("#nAg").value;
+  if(!/^[a-z0-9-]{3,30}$/.test(nome))return $("#nErr").textContent="Nome: 3 a 30 letras minúsculas, números ou hífen.";
+  if(!/^\+55\d{10,11}$/.test(fone))return $("#nErr").textContent="Número: +55, DDD e número, só dígitos.";
+  $("#modalCorpo").innerHTML=`<h1>Conectando ${esc(nome)}</h1><p class="sub">Passo 2 de 2 · digite o código no celular</p><div id="jobAlvo"><span class="spin"></span></div><button style="width:100%;margin-top:12px" onclick="$('#modal').classList.remove('on');T.wpp()">Fechar</button>`;
+  try{const d=await acao("wpp.nova",{nome,fone,agente});await acompanha(d.job,"Nova conexão",$("#jobAlvo"))}catch(e){$("#jobAlvo").innerHTML=`<p class="chip err">${esc(e.message)}</p>`}
+}
+async function qr(nome){$("#wres").innerHTML='<div class="card"><span class="spin"></span> Gerando QR…</div>';try{const d=await acao("wpp.qr",{nome});const q=d.dados.qr||"";$("#wres").innerHTML=`<div class="card"><h2>QR de ${esc(nome)}</h2>${/^data:image/.test(q)?`<img src="${esc(q)}" style="width:100%;max-width:320px;background:#fff;border-radius:12px;padding:8px">`:`<pre>${esc(q)}</pre>`}<p class="sub">WhatsApp → Aparelhos conectados → Conectar aparelho.</p></div>`}catch(e){$("#wres").innerHTML=`<div class="card">${esc(e.message)}</div>`}}
+function parear(nome,status){
+  $("#modalCorpo").innerHTML=`<h1>Código para ${esc(nome)}</h1>
+  ${status==="conectado"?`<p><span class="chip warn">já conectada</span></p><p class="sub">Um código novo derrubaria a sessão em uso. Para reconectar com outro aparelho, desconecte antes (no painel do S20).</p><button style="width:100%;margin-top:12px" onclick="$('#modal').classList.remove('on')">Fechar</button>`:
+  `<p class="sub">Gera um código de 8 caracteres para conectar este WhatsApp sem ler QR.</p>
+  <label>Número do WhatsApp que vai conectar</label><input id="pFone" inputmode="tel" placeholder="+5511999999999" value="+55">
+  <p class="sub" id="pErr"></p><div id="jobAlvo"></div>
+  <div class="row" style="margin-top:12px"><button class="grow" onclick="$('#modal').classList.remove('on');T.wpp()">Fechar</button><button class="grow pri" id="pBtn" onclick="geraCodigo('${esc(nome)}')">Gerar código</button></div>`}`;
+  $("#modal").classList.add("on");
+}
+async function geraCodigo(nome){
+  const fone=$("#pFone").value.replace(/[^\d+]/g,"");
+  if(!/^\+55\d{10,11}$/.test(fone))return $("#pErr").textContent="Número: +55, DDD e número, só dígitos.";
+  $("#pErr").textContent="";$("#pBtn").disabled=true;
+  try{const d=await acao("wpp.parear",{nome,fone});await acompanha(d.job,"Código de pareamento",$("#jobAlvo"))}
+  catch(e){$("#jobAlvo").innerHTML=`<p><span class="chip err">erro</span> ${esc(e.message)}</p>`;$("#pBtn").disabled=false}
+}
+async function rotas(nome){
+  $("#modalCorpo").innerHTML=`<h1>Rotas de ${esc(nome)}</h1><p class="sub">Mandam conversas específicas para outro agente. O resto segue o agente padrão da conexão.</p><div id="rtLista"><span class="spin"></span></div>
+  <h2 style="margin-top:14px">Mandar uma conversa para outro agente</h2>
+  <label>O que</label><select id="rtTipo" onchange="trocaTipoRota('${esc(nome)}')"><option value="group">Um grupo</option><option value="dm">Um contato</option><option value="prefixo">Todos os números de um DDD ou país</option></select>
+  <div id="rtBuscaWrap"><label>Procurar pelo nome</label><div class="row"><input id="rtBusca" class="grow" placeholder="nome do grupo ou contato"><button onclick="buscaConversas('${esc(nome)}')">Procurar</button></div><div id="rtConv" class="sub"></div></div>
+  <div id="rtPrefWrap" class="hide"><label>Começo do número (ex.: 5511 = São Paulo)</label><input id="rtValor" inputmode="tel" placeholder="5511"></div>
+  <label>Agente que vai responder</label><select id="rtAg">${opAg("main")}</select>
+  <div id="rtRes"></div><div class="row" style="margin-top:12px"><button class="grow" onclick="$('#modal').classList.remove('on')">Fechar</button><button class="grow pri" onclick="novaRota('${esc(nome)}')">Adicionar rota</button></div>`;
+  $("#modal").classList.add("on"); listaRotas(nome); buscaConversas(nome);
+}
+async function listaRotas(nome){try{const l=(await acao("rota.lista",{nome})).dados;
+  $("#rtLista").innerHTML=l.length?`<div class="lista">${l.map(x=>`<div><span class="grow"><b>${esc(x.padrao)}</b> → ${esc(x.agente)}</span><button class="perigo so-s20" onclick="removeRota('${esc(nome)}','${esc(x.padrao)}')">Remover</button></div>`).join("")}</div>`:'<p class="sub">Nenhuma rota. Todas as conversas vão para o agente padrão.</p>';
+}catch(e){$("#rtLista").textContent=e.message}}
+let rotaEscolhida="";
+function trocaTipoRota(nome){const pref=$("#rtTipo").value==="prefixo";$("#rtBuscaWrap").classList.toggle("hide",pref);$("#rtPrefWrap").classList.toggle("hide",!pref);rotaEscolhida="";if(!pref)buscaConversas(nome)}
+async function buscaConversas(nome){$("#rtConv").innerHTML='<span class="spin"></span> Procurando…';rotaEscolhida="";
+  try{const d=await acao("rota.conversas",{nome,tipo:$("#rtTipo").value,busca:$("#rtBusca").value});
+    const l=d.dados.filter(x=>x.padrao);$("#rtConv").innerHTML=l.length?l.map((x,i)=>`<button class="conv" data-p="${esc(x.padrao)}" onclick="escolheConv(this)">${esc(x.nome)}</button>`).join(""):esc(d.texto)}
+  catch(e){$("#rtConv").textContent=e.message}}
+function escolheConv(b){document.querySelectorAll(".conv").forEach(x=>x.classList.remove("sel"));b.classList.add("sel");rotaEscolhida=b.dataset.p}
+async function novaRota(nome){$("#rtRes").innerHTML='<span class="spin"></span>';
+  let tipo,valor;if($("#rtTipo").value==="prefixo"){tipo="prefixo";valor=$("#rtValor").value}else{if(!rotaEscolhida){$("#rtRes").textContent="Toque numa conversa da lista primeiro.";return}if(rotaEscolhida.startsWith("group:")){tipo="grupo";valor=rotaEscolhida.slice(6)}else{tipo="contato";valor=rotaEscolhida}}
+  try{const d=await acao("rota.add",{nome,tipo,valor,agente:$("#rtAg").value});historico("rota.add",d.ok,d.texto);$("#rtRes").innerHTML=`<p><span class="chip ${d.ok?"ok":"err"}">${d.ok?"ok":"erro"}</span> ${esc(d.texto)}</p>`;if(d.ok){$("#rtValor").value="";rotaEscolhida="";listaRotas(nome)}}catch(e){$("#rtRes").textContent=e.message}}
+async function removeRota(nome,padrao){if(!confirm("Remover a rota "+padrao+"?"))return;try{const d=await acao("rota.remover",{nome,padrao});historico("rota.remover",d.ok,d.texto);toast(d.texto);listaRotas(nome)}catch(e){toast(e.message)}}
+function trocaAgente(nome,ag){$("#modalCorpo").innerHTML=`<h1>Agente de ${esc(nome)}</h1><select id="tAg">${opAg(ag)}</select><div class="row" style="margin-top:12px"><button class="grow" onclick="$('#modal').classList.remove('on')">Cancelar</button><button class="grow pri" onclick="$('#modal').classList.remove('on');executa('wpp.agente',{nome:'${esc(nome)}',agente:$('#tAg').value},{rotulo:'Trocar agente',alvo:'#wres'}).then(()=>T.wpp())">Salvar</button></div>`;$("#modal").classList.add("on")}
+
+T.con=async()=>{
+  tela(`<h1>Conexões</h1><div class="card"><h2>Ravi Console</h2><p class="sub">Site oficial do RAVI (console.ravi.bot) para ver este servidor de qualquer lugar. Ligar é opcional.</p><div id="cConsole"><span class="spin"></span></div><div id="cRes"></div></div>
+  <div class="card so-s20"><h2>Claude (assinatura Pro ou Max)</h2><div id="cClaude" class="sub"></div><div class="guia"><b>Como conseguir o código de acesso</b><ol><li>Num computador com o Claude Code instalado, abra o Terminal.</li><li>Rode <code>claude setup-token</code> e entre com a sua conta do Claude.</li><li>Copie o código que começa com <code>sk-ant-oat</code> e cole abaixo.</li></ol></div><label>Código de acesso do Claude</label><input id="tok" type="password" autocomplete="off" placeholder="cole aqui"><button class="pri" style="width:100%;margin-top:8px" onclick="salvaToken()">Salvar token</button><div id="tRes"></div></div>
+  <div class="card so-s20"><h2>Codex (assinatura ChatGPT)</h2><p class="sub">Usa a sua assinatura do ChatGPT. O botão mostra um link e um código: abra o link em qualquer aparelho e digite o código.</p><div id="cCodex" class="sub"></div><button style="width:100%;margin-top:8px" onclick="executa('con.codex',{},{rotulo:'Instalar e logar Codex',classe:'S',texto:'Instala o Codex se faltar e abre o login por código.'})">Instalar e logar</button></div>
+  <div class="card"><h2>Outros serviços de IA (Pi)</h2><p class="sub">Ligue o RAVI a DeepSeek, OpenAI, Gemini, OpenRouter, Groq e outros. Cada serviço pede uma chave, que você cria no site dele.</p><div id="cPi"><span class="spin"></span></div></div>
+  <div class="card so-s20"><h2>Teste</h2><p class="sub">Manda uma pergunta curta ao agente principal para ver se a IA responde.</p><button style="width:100%" onclick="executa('con.teste',{},{rotulo:'Testar provider',classe:'E',texto:'Manda uma mensagem curta ao agente main e espera a resposta.'})">Testar a IA</button></div>`);
+  try{const d=(await acao("con.estado")).dados;
+    $("#cConsole").innerHTML=d.console?`<p><span class="chip ok">ligado</span> ${esc(d.console)}</p><button class="perigo so-s20" onclick="executa('con.logout',{},{rotulo:'Desligar do Console',classe:'D',texto:'O S20 deixa de aparecer no Ravi Console.',alvo:'#cRes'}).then(()=>T.con())">Desligar</button>`:`<p><span class="chip warn">não ligado</span></p><button class="pri so-s20" style="width:100%" onclick="executa('con.console',{},{rotulo:'Conectar ao Ravi Console',classe:'S',texto:'Abre um link e um código para você aprovar no navegador.'}).then(()=>T.con())">Conectar ao Console</button>`;
+    $("#cClaude").innerHTML=d.claude?'<span class="chip ok">token gravado</span>':'<span class="chip warn">sem token</span>';
+    $("#cCodex").innerHTML=d.codex?`<span class="chip ok">${esc(d.codex)}</span>`:'<span class="chip warn">não instalado ou sem login</span>';
+  }catch(e){$("#cConsole").textContent=e.message}
+  carregaPi();
+};
+async function carregaPi(){
+  try{const d=(await acao("pi.estado")).dados;
+    if(!d.instalado){$("#cPi").innerHTML=`<p><span class="chip warn">não instalado</span></p><button class="pri so-s20" style="width:100%" onclick="executa('pi.instalar',{},{rotulo:'Instalar Pi'}).then(carregaPi)">Instalar Pi</button>`;return}
+    $("#cPi").innerHTML=`<p><span class="chip ok">instalado</span> versão ${esc(d.versao)}</p>
+    ${d.servicos.length?`<div class="lista">${d.servicos.map(s=>`<div><span class="grow"><b>${esc(s.nome)}</b> <span class="chip ${s.pronto?"ok":"err"}">${s.pronto?"pronto":esc(s.motivo||"com falha")}</span></span><button class="perigo so-s20" onclick="executa('pi.remover',{provider:'${esc(s.id)}'},{rotulo:'Remover chave de ${esc(s.nome)}',classe:'D',texto:'Agentes que usam este serviço param de responder.'}).then(carregaPi)">Remover</button></div>`).join("")}</div>`:'<p class="sub">Nenhum serviço configurado.</p>'}
+    <div class="so-s20"><label>Serviço</label><select id="piProv" onchange="guiaPi()">${d.catalogo.map(c=>`<option value="${esc(c.id)}">${esc(c.nome)}</option>`).join("")}</select>
+    <div class="guia" id="piGuia"></div><label>Chave do serviço</label><input id="piKey" type="password" autocomplete="off" placeholder="cole aqui">
+    <button class="pri" style="width:100%;margin-top:8px" onclick="salvaChavePi()">Salvar e testar</button><div id="piRes"></div></div>`;guiaPi();
+  }catch(e){$("#cPi").textContent=e.message}
+}
+const PI_LINK={anthropic:"console.anthropic.com/settings/keys",openai:"platform.openai.com/api-keys",google:"aistudio.google.com/apikey",deepseek:"platform.deepseek.com/api_keys",openrouter:"openrouter.ai/keys",groq:"console.groq.com/keys",xai:"console.x.ai",mistral:"console.mistral.ai/api-keys",cerebras:"cloud.cerebras.ai",moonshotai:"platform.moonshot.ai/console/api-keys",together:"api.together.ai/settings/api-keys",fireworks:"fireworks.ai/account/api-keys",huggingface:"huggingface.co/settings/tokens",nvidia:"build.nvidia.com"};
+function guiaPi(){const p=$("#piProv")?.value,l=PI_LINK[p],n=$("#piProv")?.selectedOptions[0]?.text;if(!$("#piGuia"))return;
+  $("#piGuia").innerHTML=`<b>Como conseguir a chave de ${esc(n)}</b><ol><li>${l?`Abra <a href="https://${l}" target="_blank" rel="noopener">${esc(l)}</a> e entre na sua conta.`:`Abra o site de ${esc(n)} e entre na sua conta.`}</li><li>Crie uma chave nova (às vezes chamada de API key).</li><li>Copie a chave e cole abaixo. O painel testa na hora.</li></ol>`}
+async function salvaChavePi(){const k=$("#piKey").value.trim();if(!k)return toast("Cole a chave.");
+  await executa("pi.chave",{provider:$("#piProv").value,chave:k},{rotulo:"Salvar chave do Pi",classe:"S",texto:"Grava a chave no S20 e testa o serviço. A chave não volta a aparecer.",alvo:"#piRes"});$("#piKey").value="";setTimeout(carregaPi,1500)}
+async function salvaToken(){const t=$("#tok").value.trim();if(!t)return toast("Cole o token.");await executa("con.claude",{token:t},{rotulo:"Salvar token do Claude",classe:"S",texto:"Grava o token no S20 e reinicia o RAVI. O token não volta a aparecer.",alvo:"#tRes"});$("#tok").value="";T.con()}
+
+T.ag=async(sel="main")=>{
+  const instrP=acao("ag.ver",{agente:sel}).catch(e=>({erro:e.message}));
+  await carregaAgentes();
+  tela(`<h1>Agente</h1><div class="card"><div class="row"><h2 class="grow">Agentes</h2><button class="pri" onclick="novoAgente()">Novo agente</button></div><label>Agente</label><select id="agSel" onchange="carregaInstr()">${opAg(sel)}</select><label>Instruções do agente (o que ele deve fazer e como falar)</label><textarea id="instr" spellcheck="false"></textarea><button class="pri" style="width:100%;margin-top:8px" onclick="executa('ag.salvar',{agente:$('#agSel').value,texto:$('#instr').value},{rotulo:'Salvar instruções',alvo:'#agRes'})">Salvar instruções</button><div id="agRes"></div></div>
+  <div class="card so-s20"><h2>Conversa de teste</h2><input id="agMsg" placeholder="Escreva uma mensagem"><button style="width:100%;margin-top:8px" onclick="executa('ag.teste',{agente:$('#agSel').value,mensagem:$('#agMsg').value},{rotulo:'Conversa de teste',classe:'E',texto:'Manda a mensagem ao agente e espera a resposta.'})">Enviar</button></div>
+  <div class="card so-s20"><h2>Apagar</h2><button class="perigo" style="width:100%" onclick="apagaAgente()">Apagar este agente</button><div id="agApRes"></div></div>`);
+  if(agentes.includes(sel))$("#agSel").value=sel;
+  $("#instr").value="Carregando…";const r=await instrP;if(r.erro){$("#instr").value="";toast(r.erro)}else $("#instr").value=r.dados.texto;
+};
+function novoAgente(){
+  $("#modalCorpo").innerHTML=`<h1>Novo agente</h1>
+  <label>Nome (letras minúsculas, números, hífen)</label><input id="naId" placeholder="ex.: vendas" autocapitalize="off">
+  <label>Provider</label><select id="naProv" onchange="trocaProvNovo()"><option value="claude">Claude</option><option value="codex">Codex</option><option value="pi">Pi (vários serviços)</option></select>
+  <div id="naModWrap" class="hide"><label>Modelo do Pi</label><select id="naMod"><option value="">carregando…</option></select></div>
+  <label>Instruções iniciais (opcional)</label><textarea id="naInstr" style="min-height:140px" placeholder="Você é o agente de vendas da empresa…"></textarea>
+  <p class="sub" id="naErr"></p><div class="row" style="margin-top:12px"><button class="grow" onclick="$('#modal').classList.remove('on')">Cancelar</button><button class="grow pri" onclick="criaAgente()">Criar agente</button></div>`;
+  $("#modal").classList.add("on");
+}
+async function trocaProvNovo(){
+  const pi=$("#naProv").value==="pi"; $("#naModWrap").classList.toggle("hide",!pi); if(!pi)return;
+  try{const d=await acao("pi.modelos");$("#naMod").innerHTML=d.dados.length?d.dados.map(m=>`<option>${esc(m)}</option>`).join(""):`<option value="">${esc(d.texto)}</option>`}catch(e){$("#naMod").innerHTML=`<option value="">${esc(e.message)}</option>`}
+}
+async function criaAgente(){
+  const id=$("#naId").value.trim();
+  if($("#naProv").value==="pi"&&!$("#naMod").value)return $("#naErr").textContent="Escolha um modelo do Pi. Sem modelos? Adicione uma chave em Conexões → Provider Pi.";
+  if(!/^[a-z][a-z0-9-]{1,29}$/.test(id))return $("#naErr").textContent="Nome: 2 a 30 letras minúsculas, números ou hífen, começando por letra.";
+  $("#naErr").innerHTML='<span class="spin"></span> Criando…';
+  try{const d=await acao("ag.criar",{id,provider:$("#naProv").value,modelo:$("#naMod").value,instrucoes:$("#naInstr").value});historico("ag.criar",d.ok,d.texto);
+    if(!d.ok)return $("#naErr").textContent=d.texto;
+    $("#modal").classList.remove("on");toast(d.texto,5000);T.ag(id);
+  }catch(e){$("#naErr").textContent=e.message}
+}
+async function apagaAgente(){
+  const id=$("#agSel").value; if(id==="main")return toast("O agente main é o padrão e não pode ser apagado.");
+  const d=await executa("ag.apagar",{id},{rotulo:"Apagar "+id,classe:"D",texto:"O agente sai do RAVI. A pasta dele fica guardada em ~/arquivo.",digitar:id,alvo:"#agApRes"});
+  if(d&&d.ok)T.ag("main");
+}
+async function carregaInstr(){$("#instr").value="Carregando…";try{$("#instr").value=(await acao("ag.ver",{agente:$("#agSel").value})).dados.texto}catch(e){$("#instr").value="";toast(e.message)}}
+
+T.al=async()=>{
+  tela(`<h1>Alertas</h1><div class="card"><h2>Destino</h2><div id="alDest" class="sub"><span class="spin"></span></div><label>Conexão que envia</label><select id="alCon"></select><label>Número que recebe</label><input id="alFone" inputmode="tel" value="+55"><button class="pri" style="width:100%;margin-top:8px" onclick="executa('al.destino',{nome:$('#alCon').value,fone:$('#alFone').value.replace(/[^\\d+]/g,'')},{rotulo:'Salvar destino',alvo:'#alRes'}).then(()=>T.al())">Salvar destino</button>
+  <button style="width:100%;margin-top:8px" onclick="executa('al.teste',{},{rotulo:'Enviar alerta de teste',classe:'E',texto:'Manda uma mensagem de teste para o número configurado.',alvo:'#alRes'})">Enviar alerta de teste</button><div id="alRes"></div></div>
+  <div class="card"><h2>Últimos alertas</h2><div id="alUlt" class="sub"></div></div>`);
+  try{const [d,l]=await Promise.all([acao("al.estado"),acao("wpp.lista")]);
+    $("#alCon").innerHTML=l.dados.map(i=>`<option>${esc(i.nome)}</option>`).join("")||"<option value=''>conecte o WhatsApp antes</option>";
+    $("#alDest").innerHTML=d.dados.destino?`<span class="chip ok">configurado</span> ${esc(d.dados.destino.para)} pela conexão ${esc(d.dados.destino.conexao)}`:'<span class="chip warn">sem destino: os alertas ficam só no S20</span>';
+    $("#alUlt").innerHTML=d.dados.ultimos.length?`<pre>${esc(d.dados.ultimos.join("\n"))}</pre>`:"Nenhum alerta.";
+  }catch(e){$("#alDest").textContent=e.message}
+};
+
+T.sis=async()=>{
+  tela(`<h1>Sistema</h1><details class="av" id="avSis"><summary>Avançado (registros técnicos e versões)</summary><h2>Registros</h2><div class="row"><select id="lgSel" class="grow"><option value="ravi">RAVI (agentes)</option><option value="omni-api">Ponte do WhatsApp</option><option value="omni-nats">Fila interna</option><option value="omni-pg">Banco de dados</option><option value="painel">Painel</option><option value="ravi-channels">Canais do RAVI</option><option class="so-s20" value="guardiao">guardião</option><option class="so-s20" value="atualizacao">atualização</option></select><button onclick="logs()">Ver</button></div><div id="lgRes"></div><h2 style="margin-top:14px">Versões</h2><div id="ver"><span class="spin"></span></div></details>
+  <div class="card so-s20"><h2>Tela do S20</h2><div class="row"><button class="grow" onclick="executa('sis.tela',{modo:'uso'},{rotulo:'Modo uso'})">Modo uso</button><button class="grow" onclick="executa('sis.tela',{modo:'servidor'},{rotulo:'Modo servidor'})">Modo servidor</button></div></div>
+  <div class="card"><h2>Atualizações</h2><p class="sub so-s20">O S20 se atualiza sozinho todo domingo às 4h. Use os botões para atualizar agora.</p><p class="sub so-vps">Na VPS o painel só consulta: atualizar fica bloqueado pelo nível escolhido.</p><div class="row"><button class="grow so-s20 pri" onclick="atualizaTudoDireto()">Atualizar tudo</button><button class="grow" onclick="buscaAtualizacoes()">Ver o que mudou</button></div><div id="atuRes" class="sub"></div></div>
+  <div class="card so-s20"><h2>Manutenção</h2><button class="perigo" style="width:100%" onclick="executa('sis.reboot',{},{rotulo:'Reiniciar o S20',classe:'D',texto:'O painel some por cerca de 2 minutos.',digitar:'REINICIAR'})">Reiniciar o S20</button></div>
+  <div class="card"><h2>PIN</h2><label>PIN atual</label><input id="pA" type="password" inputmode="numeric"><label>PIN novo (4 a 12 dígitos)</label><input id="pN" type="password" inputmode="numeric"><label>Repita o PIN novo</label><input id="pR" type="password" inputmode="numeric"><button style="width:100%;margin-top:8px" onclick="trocaPin()">Trocar PIN</button><button style="width:100%;margin-top:8px" onclick="api('/api/sair',{}).then(mostraLogin)">Sair</button></div>`);
+  try{const v=(await acao("sis.versoes")).dados;$("#ver").innerHTML=`<div class="lista">${Object.entries(v).map(([k,x])=>`<div><b style="width:90px">${esc(k)}</b><span class="sub" style="white-space:pre-line">${esc(x)}</span></div>`).join("")}</div>`}catch(e){$("#ver").textContent=e.message}
+};
+const COR_EST={"em dia":"ok","atualizar":"warn","nova versão maior":"warn","manual":"","não instalado":"","sem resposta":"err"};
+async function buscaAtualizacoes(){
+  $("#atuRes").innerHTML='<p><span class="spin"></span> Consultando Ubuntu, Node, Bun, RAVI, Omni, PM2, Tailscale, LineageOS e Magisk…</p>';
+  try{const d=await acao("sis.buscar");historico("sis.buscar",d.ok,d.texto);
+    const l=d.dados, pend=l.filter(x=>x.estado==="atualizar").length;
+    $("#atuRes").innerHTML=`<p>${esc(d.texto)}</p><div class="lista">${l.map(x=>`<div style="flex-wrap:wrap"><div class="grow"><b>${esc(x.nome)}</b><div class="sub">${esc(x.instalada||"—")} → ${esc(x.nova)}${x.estado==="nova versão maior"&&x.novaMesmaMaior&&x.novaMesmaMaior!==x.instalada?" · na mesma versão maior: "+esc(x.novaMesmaMaior):""}</div></div>
+      <span class="chip ${COR_EST[x.estado]||""}">${esc(x.estado==="nova versão maior"?"versão nova grande":x.estado)}</span>
+      ${x.estado==="nova versão maior"?`<label style="margin:0;display:flex;gap:6px;align-items:center;width:100%"><input type="checkbox" class="maj" value="${esc(x.id)}" style="width:22px;min-height:22px"> incluir a versão maior nova (pode quebrar o RAVI)</label>`:""}
+      ${x.estado==="manual"?`<div class="sub" style="width:100%">Atualiza só com cabo USB e recovery.</div>`:""}</div>`).join("")}</div>
+      <button class="pri so-s20" style="width:100%;margin-top:10px" ${pend||l.some(x=>x.estado==="nova versão maior")?"":"disabled"} onclick="atualizarTudo()">Atualizar agora</button>`;
+  }catch(e){$("#atuRes").textContent=e.message}
+}
+async function atualizaTudoDireto(){
+  $("#atuRes").innerHTML='<p><span class="spin"></span> Vendo o que há para atualizar…</p>';
+  try{const d=await acao("sis.buscar"),l=d.dados;
+    const muda=l.filter(x=>x.estado==="atualizar"||x.estado==="nova versão maior");
+    if(!muda.length){$("#atuRes").innerHTML=`<p><span class="chip ok">em dia</span> Tudo já está na versão mais nova.</p>`;return}
+    const majors=l.filter(x=>x.estado==="nova versão maior").map(x=>x.id).join(",");
+    const lista=muda.map(x=>`${x.nome}: ${x.instalada||"—"} → ${x.estado==="nova versão maior"?x.nova+" (versão maior)":x.novaMesmaMaior||x.nova}`).join("; ");
+    $("#atuRes").innerHTML="";
+    await executa("sis.atualizar",{majors},{rotulo:"Atualizar tudo",classe:"D",texto:"Vai mudar: "+lista+". Faz cópia de segurança antes. Se algo falhar, volta tudo à versão anterior."});
+  }catch(e){$("#atuRes").textContent=e.message}
+}
+function atualizarTudo(){
+  const majors=[...document.querySelectorAll(".maj:checked")].map(x=>x.value).join(",");
+  executa("sis.atualizar",{majors},{rotulo:"Atualizar agora",classe:"D",texto:"Faz backup, atualiza dentro da mesma versão maior"+(majors?" e as versões maiores marcadas ("+majors+")":"")+". Se a saúde falhar, volta tudo à versão anterior."});
+}
+async function logs(){$("#lgRes").innerHTML='<span class="spin"></span>';try{$("#lgRes").innerHTML=`<pre>${esc((await acao("sis.logs",{svc:$("#lgSel").value})).dados.texto||"(vazio)")}</pre>`}catch(e){$("#lgRes").textContent=e.message}}
+async function trocaPin(){if($("#pN").value!==$("#pR").value)return toast("Os PINs novos não conferem.");const ok=await confirma("Trocar PIN","S","Todos os aparelhos precisam entrar de novo.");if(!ok)return;try{const d=await api("/api/pin",{atual:$("#pA").value,novo:$("#pN").value});toast(d.texto);mostraLogin()}catch(e){toast(e.message)}}
+
+// ---------- navegação e login ----------
+function tela(html){$("#tela").innerHTML=html;window.scrollTo(0,0)}
+function navega(t){if(MODO==="vps"&&t==="al")t="inicio";atual=t;try{localStorage.setItem("tela",t)}catch{}$("#nav").innerHTML=TELAS.filter(([k])=>!(MODO==="vps"&&k==="al")).map(([k,n])=>`<button ${k===atual?'aria-current="page"':""} onclick="navega('${k}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICON[k]}</svg>${n}</button>`).join("");T[t]()}
+function mostraLogin(){$("#app").classList.add("hide");$("#login").classList.remove("hide");$("#pin").value="";setTimeout(()=>$("#pin").focus(),50)}
+async function entrar(){try{await api("/api/login",{pin:$("#pin").value});$("#login").classList.add("hide");$("#app").classList.remove("hide");await carregaInfo();navega(atual)}catch(e){$("#loginErro").textContent=e.message}}
+$("#pin").addEventListener("keydown",e=>{if(e.key==="Enter")entrar()});
+(async()=>{try{atual=localStorage.getItem("tela")||"inicio"}catch{}
+  const r=await fetch("/api/job/x");if(r.status===401){mostraLogin()}else{$("#app").classList.remove("hide");await carregaInfo();navega(atual)}})();
+</script>
+</body>
+</html>
