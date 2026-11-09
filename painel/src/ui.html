@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#000000">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icone.svg">
-<title>Painel S20</title>
+<title>Painel RAVI</title>
 <style>
 :root{--bg:#000;--card:#0d1117;--card2:#151b23;--line:#232b36;--txt:#e6edf3;--sub:#8b98a5;--ok:#3ddc97;--warn:#f5b84a;--err:#ff6b6b;--acc:#3ddc97;--r:14px}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
@@ -38,14 +38,14 @@ nav button[aria-current=page]{color:var(--acc)}nav svg{width:22px;height:22px}
 @media(min-width:700px){.modal{align-items:center}.modal .card{border-radius:18px}}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:92px;background:var(--card2);border:1px solid var(--line);padding:12px 16px;border-radius:12px;z-index:10;display:none;max-width:90vw}
 .spin{width:18px;height:18px;border:3px solid var(--line);border-top-color:var(--acc);border-radius:50%;animation:g 1s linear infinite;display:inline-block;vertical-align:middle}@keyframes g{to{transform:rotate(360deg)}}
-.hide{display:none!important}body.vps .so-s20{display:none!important}body:not(.vps) .so-vps{display:none!important}
+.hide{display:none!important}body.vps .so-s20{display:none!important}body:not(.vps) .so-vps{display:none!important}body:not(.android) .so-android{display:none!important}
 details.av{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin:0 0 12px}details.av summary{cursor:pointer;font-weight:600;color:var(--sub);min-height:32px;display:flex;align-items:center}details.av[open] summary{margin-bottom:10px}
 .guia{background:#06090d;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:8px 0;font-size:14px;color:var(--sub)}.guia ol{margin:6px 0 0 18px;padding:0}.conv{display:block;width:100%;text-align:left;margin:6px 0;min-height:44px}.conv.sel{border-color:var(--acc);color:var(--acc)}
 #topo{display:flex;align-items:center;gap:10px;margin:0 0 6px}#topo select{width:auto;min-height:40px;padding:6px 10px}a{color:var(--acc)}
 </style>
 </head>
 <body>
-<div id="login" class="hide"><main><h1>Painel S20</h1><div class="card"><label for="pin">PIN</label><input id="pin" inputmode="numeric" autocomplete="current-password" type="password" maxlength="12"><p class="sub" id="loginErro"></p><button class="pri" style="width:100%" onclick="entrar()">Entrar</button></div></main></div>
+<div id="login" class="hide"><main><h1>Painel RAVI</h1><div class="card"><label for="pin">PIN</label><input id="pin" inputmode="numeric" autocomplete="current-password" type="password" maxlength="12"><p class="sub" id="loginErro"></p><button class="pri" style="width:100%" onclick="entrar()">Entrar</button></div></main></div>
 
 <div id="app" class="hide"><main><div id="topo"><span class="sub">Servidor</span><select id="srvSel" onchange="trocaServidor()"></select></div><div id="tela"></div></main>
 <nav id="nav"></nav></div>
@@ -57,12 +57,12 @@ details.av{background:var(--card);border:1px solid var(--line);border-radius:var
 const $=s=>document.querySelector(s), esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const ICON={inicio:'<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',wpp:'<path d="M4 20l1.3-4A8 8 0 1 1 8 18.7z"/>',con:'<path d="M9 15l6-6M10 6l1-1a4 4 0 0 1 6 6l-1 1M14 18l-1 1a4 4 0 0 1-6-6l1-1"/>',ag:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',al:'<path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 21h4"/>',sis:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/>'};
 const TELAS=[["inicio","Início"],["wpp","WhatsApp"],["con","Conexões"],["ag","Agente"],["al","Alertas"],["sis","Sistema"]];
-let atual="inicio", MODO="s20";
-async function carregaInfo(){try{const i=await api("/api/info");MODO=i.modo;document.body.classList.toggle("vps",MODO==="vps");document.title="Painel "+i.nome;
+let atual="inicio", MODO="android";
+async function carregaInfo(){try{const i=await api("/api/info");MODO=i.modo==="s20"?"android":i.modo;["vps","completo","android"].forEach(m=>document.body.classList.toggle(m,MODO===m));document.title="Painel "+i.nome;
   const lista=i.servidores.length?i.servidores:[{nome:i.nome,url:location.origin}];
   $("#srvSel").innerHTML=lista.map(s=>`<option value="${esc(s.url)}" ${s.nome===i.nome?"selected":""}>${esc(s.nome)}</option>`).join("");window.srvAtual=$("#srvSel").selectedIndex;}catch{}}
 function trocaServidor(){const u=$("#srvSel").value;if(!u||location.href.startsWith(u))return;
-  if(/^(127\.0\.0\.1|localhost)$/.test(location.hostname)){toast("Este servidor abre só em aparelhos com Tailscale (Mac ou celular). Na tela do S20, use o painel do S20.",6000);$("#srvSel").selectedIndex=window.srvAtual||0;return}
+  if(/^(127\.0\.0\.1|localhost)$/.test(location.hostname)){toast("Este servidor abre só em aparelhos com Tailscale (Mac ou celular). Na tela deste aparelho, use o painel local.",6000);$("#srvSel").selectedIndex=window.srvAtual||0;return}
   location.href=u}
 
 async function api(caminho,corpo){
@@ -103,7 +103,7 @@ function realce(s){
 async function acompanha(job,rotulo,el){
   const alvo=el||(()=>{$("#modalCorpo").innerHTML=`<h1>${esc(rotulo)}</h1><div id="jobAlvo"></div><button style="width:100%;margin-top:12px" onclick="$('#modal').classList.remove('on')">Fechar</button>`;$("#modal").classList.add("on");return $("#jobAlvo")})();
   for(;;){
-    const j=await api("/api/job/"+job).catch(e=>({fim:true,rc:1,saida:/tarefa não encontrada/.test(e.message)?"O painel reiniciou durante a tarefa (normal numa atualização). A tarefa continua no S20: veja o resultado em Sistema → Logs → atualização.":e.message}));
+    const j=await api("/api/job/"+job).catch(e=>({fim:true,rc:1,saida:/tarefa não encontrada/.test(e.message)?"O painel reiniciou durante a tarefa (normal numa atualização). A tarefa continua no servidor: veja o resultado em Sistema → Logs → atualização.":e.message}));
     const ok=j.fim&&j.rc===0, est=j.fim?(ok?'<span class="chip ok">concluído</span>':'<span class="chip err">não concluído</span>'):'<span class="spin"></span> em andamento';
     alvo.innerHTML=`<p>${est}</p>`+realce(j.saida||"");
     if(j.fim){historico(job,ok,rotulo);return j}
@@ -115,15 +115,15 @@ async function acompanha(job,rotulo,el){
 const T={};
 T.inicio=async()=>{
   tela(`<h1>Início</h1><div class="card"><div class="row"><h2 class="grow">Serviços</h2><button onclick="T.inicio()">Atualizar</button></div><div id="svcs"><span class="spin"></span></div></div>
-  <div class="card so-s20"><h2>Cópia de segurança</h2><p class="sub">Guarda o banco do WhatsApp e os dados do RAVI no S20. Já roda sozinha todo dia às 3h.</p><button style="width:100%" onclick="executa('inicio.backup',{},{rotulo:'Backup agora'})">Fazer cópia agora</button></div>
+  <div class="card so-s20 so-android"><h2>Cópia de segurança</h2><p class="sub">Guarda o banco do WhatsApp e os dados do RAVI no aparelho. Já roda sozinha todo dia às 3h.</p><button style="width:100%" onclick="executa('inicio.backup',{},{rotulo:'Backup agora'})">Fazer cópia agora</button></div>
   <details class="av"><summary>Avançado (para quando algo falhar)</summary>
   <label>Religar uma parte do sistema</label><div class="row"><select id="svcSel" class="grow"><option value="ravi">RAVI (agentes)</option><option value="omni-api">Ponte do WhatsApp</option><option value="omni-nats">Fila interna</option><option value="omni-pg">Banco de dados</option><option value="ravi-channels">Canais do RAVI</option></select><button onclick="executa('inicio.reiniciar',{svc:$('#svcSel').value},{rotulo:'Religar '+$('#svcSel').selectedOptions[0].text,classe:'D',texto:'Essa parte para por alguns segundos e volta sozinha.',alvo:'#acRes'})">Religar</button></div>
   <button style="width:100%;margin-top:8px" onclick="diag()">Diagnóstico técnico</button><div id="acRes"></div></details>
-  <div class="card so-s20"><h2>Últimos alertas</h2><div id="alertas" class="sub">—</div></div><div class="card"><h2>Histórico neste aparelho</h2><div id="hist" class="lista sub"></div></div>`);
+  <div class="card so-s20 so-android"><h2>Últimos alertas</h2><div id="alertas" class="sub">—</div></div><div class="card"><h2>Histórico neste aparelho</h2><div id="hist" class="lista sub"></div></div>`);
   try{const h=JSON.parse(localStorage.getItem("hist")||"[]");$("#hist").innerHTML=h.length?h.map(x=>`<div><span class="chip ${x.ok?"ok":"err"}">${x.ok?"ok":"erro"}</span><span class="grow">${esc(x.texto)}</span><small>${esc(x.t)}</small></div>`).join(""):"Nenhuma ação ainda."}catch{}
   try{const d=(await acao("inicio.estado")).dados, g=d.guardiao||{};
     const nomes={omni:"Ponte do WhatsApp",pg:"Banco de dados",nats:"Fila interna",ravi:"RAVI (agentes)",ts:"Acesso remoto",dns:"Internet"};
-    $("#svcs").innerHTML=`<div class="grid">${Object.entries(nomes).map(([k,n])=>`<div class="svc"><b>${n}</b><span class="chip ${g[k]==="ok"?"ok":"err"}">${g[k]==="ok"?"funcionando":"com falha"}</span></div>`).join("")}</div><p class="sub so-s20">Bateria ${esc(g.bateria||"?")}% · ${g.bat_modo==="carregando"?"carregando até o máximo":g.bat_modo==="drenando"?"drenando até o mínimo":"ciclo automático"}</p><p class="sub">Verificado às ${esc((g.time||"").slice(11,16)||"—")} · chave do Tailscale expira em ${esc(g.ts_expiry_days||"?")} dias</p>`;
+    $("#svcs").innerHTML=`<div class="grid">${Object.entries(nomes).map(([k,n])=>`<div class="svc"><b>${n}</b><span class="chip ${g[k]==="ok"?"ok":"err"}">${g[k]==="ok"?"funcionando":"com falha"}</span></div>`).join("")}</div><p class="sub so-s20 so-android">Bateria ${esc(g.bateria||"?")}% · ${g.bat_modo==="carregando"?"carregando até o máximo":g.bat_modo==="drenando"?"drenando até o mínimo":"ciclo automático"}</p><p class="sub">Verificado às ${esc((g.time||"").slice(11,16)||"—")} · chave do Tailscale expira em ${esc(g.ts_expiry_days||"?")} dias</p>`;
     $("#alertas").innerHTML=d.alertas.length?`<pre>${esc(d.alertas.join("\n"))}</pre>`:"Nenhum alerta.";
   }catch(e){$("#svcs").textContent=e.message}
 };
@@ -158,7 +158,7 @@ async function gerarCodigo(){
 async function qr(nome){$("#wres").innerHTML='<div class="card"><span class="spin"></span> Gerando QR…</div>';try{const d=await acao("wpp.qr",{nome});const q=d.dados.qr||"";$("#wres").innerHTML=`<div class="card"><h2>QR de ${esc(nome)}</h2>${/^data:image/.test(q)?`<img src="${esc(q)}" style="width:100%;max-width:320px;background:#fff;border-radius:12px;padding:8px">`:`<pre>${esc(q)}</pre>`}<p class="sub">WhatsApp → Aparelhos conectados → Conectar aparelho.</p></div>`}catch(e){$("#wres").innerHTML=`<div class="card">${esc(e.message)}</div>`}}
 function parear(nome,status){
   $("#modalCorpo").innerHTML=`<h1>Código para ${esc(nome)}</h1>
-  ${status==="conectado"?`<p><span class="chip warn">já conectada</span></p><p class="sub">Um código novo derrubaria a sessão em uso. Para reconectar com outro aparelho, desconecte antes (no painel do S20).</p><button style="width:100%;margin-top:12px" onclick="$('#modal').classList.remove('on')">Fechar</button>`:
+  ${status==="conectado"?`<p><span class="chip warn">já conectada</span></p><p class="sub">Um código novo derrubaria a sessão em uso. Para reconectar com outro aparelho, desconecte antes (fora do modo vps).</p><button style="width:100%;margin-top:12px" onclick="$('#modal').classList.remove('on')">Fechar</button>`:
   `<p class="sub">Gera um código de 8 caracteres para conectar este WhatsApp sem ler QR.</p>
   <label>Número do WhatsApp que vai conectar</label><input id="pFone" inputmode="tel" placeholder="+5511999999999" value="+55">
   <p class="sub" id="pErr"></p><div id="jobAlvo"></div>
@@ -205,7 +205,7 @@ T.con=async()=>{
   <div class="card"><h2>Outros serviços de IA (Pi)</h2><p class="sub">Ligue o RAVI a DeepSeek, OpenAI, Gemini, OpenRouter, Groq e outros. Cada serviço pede uma chave, que você cria no site dele.</p><div id="cPi"><span class="spin"></span></div></div>
   <div class="card so-s20"><h2>Teste</h2><p class="sub">Manda uma pergunta curta ao agente principal para ver se a IA responde.</p><button style="width:100%" onclick="executa('con.teste',{},{rotulo:'Testar provider',classe:'E',texto:'Manda uma mensagem curta ao agente main e espera a resposta.'})">Testar a IA</button></div>`);
   try{const d=(await acao("con.estado")).dados;
-    $("#cConsole").innerHTML=d.console?`<p><span class="chip ok">ligado</span> ${esc(d.console)}</p><button class="perigo so-s20" onclick="executa('con.logout',{},{rotulo:'Desligar do Console',classe:'D',texto:'O S20 deixa de aparecer no Ravi Console.',alvo:'#cRes'}).then(()=>T.con())">Desligar</button>`:`<p><span class="chip warn">não ligado</span></p><button class="pri so-s20" style="width:100%" onclick="executa('con.console',{},{rotulo:'Conectar ao Ravi Console',classe:'S',texto:'Abre um link e um código para você aprovar no navegador.'}).then(()=>T.con())">Conectar ao Console</button>`;
+    $("#cConsole").innerHTML=d.console?`<p><span class="chip ok">ligado</span> ${esc(d.console)}</p><button class="perigo so-s20" onclick="executa('con.logout',{},{rotulo:'Desligar do Console',classe:'D',texto:'Este servidor deixa de aparecer no Ravi Console.',alvo:'#cRes'}).then(()=>T.con())">Desligar</button>`:`<p><span class="chip warn">não ligado</span></p><button class="pri so-s20" style="width:100%" onclick="executa('con.console',{},{rotulo:'Conectar ao Ravi Console',classe:'S',texto:'Abre um link e um código para você aprovar no navegador.'}).then(()=>T.con())">Conectar ao Console</button>`;
     $("#cClaude").innerHTML=d.claude?'<span class="chip ok">token gravado</span>':'<span class="chip warn">sem token</span>';
     $("#cCodex").innerHTML=d.codex?`<span class="chip ok">${esc(d.codex)}</span>`:'<span class="chip warn">não instalado ou sem login</span>';
   }catch(e){$("#cConsole").textContent=e.message}
@@ -225,8 +225,8 @@ const PI_LINK={anthropic:"console.anthropic.com/settings/keys",openai:"platform.
 function guiaPi(){const p=$("#piProv")?.value,l=PI_LINK[p],n=$("#piProv")?.selectedOptions[0]?.text;if(!$("#piGuia"))return;
   $("#piGuia").innerHTML=`<b>Como conseguir a chave de ${esc(n)}</b><ol><li>${l?`Abra <a href="https://${l}" target="_blank" rel="noopener">${esc(l)}</a> e entre na sua conta.`:`Abra o site de ${esc(n)} e entre na sua conta.`}</li><li>Crie uma chave nova (às vezes chamada de API key).</li><li>Copie a chave e cole abaixo. O painel testa na hora.</li></ol>`}
 async function salvaChavePi(){const k=$("#piKey").value.trim();if(!k)return toast("Cole a chave.");
-  await executa("pi.chave",{provider:$("#piProv").value,chave:k},{rotulo:"Salvar chave do Pi",classe:"S",texto:"Grava a chave no S20 e testa o serviço. A chave não volta a aparecer.",alvo:"#piRes"});$("#piKey").value="";setTimeout(carregaPi,1500)}
-async function salvaToken(){const t=$("#tok").value.trim();if(!t)return toast("Cole o token.");await executa("con.claude",{token:t},{rotulo:"Salvar token do Claude",classe:"S",texto:"Grava o token no S20 e reinicia o RAVI. O token não volta a aparecer.",alvo:"#tRes"});$("#tok").value="";T.con()}
+  await executa("pi.chave",{provider:$("#piProv").value,chave:k},{rotulo:"Salvar chave do Pi",classe:"S",texto:"Grava a chave no servidor e testa o serviço. A chave não volta a aparecer.",alvo:"#piRes"});$("#piKey").value="";setTimeout(carregaPi,1500)}
+async function salvaToken(){const t=$("#tok").value.trim();if(!t)return toast("Cole o token.");await executa("con.claude",{token:t},{rotulo:"Salvar token do Claude",classe:"S",texto:"Grava o token no servidor e reinicia o RAVI. O token não volta a aparecer.",alvo:"#tRes"});$("#tok").value="";T.con()}
 
 T.ag=async(sel="main")=>{
   const instrP=acao("ag.ver",{agente:sel}).catch(e=>({erro:e.message}));
@@ -273,16 +273,16 @@ T.al=async()=>{
   <div class="card"><h2>Últimos alertas</h2><div id="alUlt" class="sub"></div></div>`);
   try{const [d,l]=await Promise.all([acao("al.estado"),acao("wpp.lista")]);
     $("#alCon").innerHTML=l.dados.map(i=>`<option>${esc(i.nome)}</option>`).join("")||"<option value=''>conecte o WhatsApp antes</option>";
-    $("#alDest").innerHTML=d.dados.destino?`<span class="chip ok">configurado</span> ${esc(d.dados.destino.para)} pela conexão ${esc(d.dados.destino.conexao)}`:'<span class="chip warn">sem destino: os alertas ficam só no S20</span>';
+    $("#alDest").innerHTML=d.dados.destino?`<span class="chip ok">configurado</span> ${esc(d.dados.destino.para)} pela conexão ${esc(d.dados.destino.conexao)}`:'<span class="chip warn">sem destino: os alertas ficam só no aparelho</span>';
     $("#alUlt").innerHTML=d.dados.ultimos.length?`<pre>${esc(d.dados.ultimos.join("\n"))}</pre>`:"Nenhum alerta.";
   }catch(e){$("#alDest").textContent=e.message}
 };
 
 T.sis=async()=>{
-  tela(`<h1>Sistema</h1><details class="av" id="avSis"><summary>Avançado (registros técnicos e versões)</summary><h2>Registros</h2><div class="row"><select id="lgSel" class="grow"><option value="ravi">RAVI (agentes)</option><option value="omni-api">Ponte do WhatsApp</option><option value="omni-nats">Fila interna</option><option value="omni-pg">Banco de dados</option><option value="painel">Painel</option><option value="ravi-channels">Canais do RAVI</option><option class="so-s20" value="guardiao">guardião</option><option class="so-s20" value="atualizacao">atualização</option></select><button onclick="logs()">Ver</button></div><div id="lgRes"></div><h2 style="margin-top:14px">Versões</h2><div id="ver"><span class="spin"></span></div></details>
-  <div class="card so-s20"><h2>Tela do S20</h2><div class="row"><button class="grow" onclick="executa('sis.tela',{modo:'uso'},{rotulo:'Modo uso'})">Modo uso</button><button class="grow" onclick="executa('sis.tela',{modo:'servidor'},{rotulo:'Modo servidor'})">Modo servidor</button></div></div>
-  <div class="card"><h2>Atualizações</h2><p class="sub so-s20">O S20 se atualiza sozinho todo domingo às 4h. Use os botões para atualizar agora.</p><p class="sub so-vps">Na VPS o painel só consulta: atualizar fica bloqueado pelo nível escolhido.</p><div class="row"><button class="grow so-s20 pri" onclick="atualizaTudoDireto()">Atualizar tudo</button><button class="grow" onclick="buscaAtualizacoes()">Ver o que mudou</button></div><div id="atuRes" class="sub"></div></div>
-  <div class="card so-s20"><h2>Manutenção</h2><button class="perigo" style="width:100%" onclick="executa('sis.reboot',{},{rotulo:'Reiniciar o S20',classe:'D',texto:'O painel some por cerca de 2 minutos.',digitar:'REINICIAR'})">Reiniciar o S20</button></div>
+  tela(`<h1>Sistema</h1><details class="av" id="avSis"><summary>Avançado (registros técnicos e versões)</summary><h2>Registros</h2><div class="row"><select id="lgSel" class="grow"><option value="ravi">RAVI (agentes)</option><option value="omni-api">Ponte do WhatsApp</option><option value="omni-nats">Fila interna</option><option value="omni-pg">Banco de dados</option><option value="painel">Painel</option><option value="ravi-channels">Canais do RAVI</option><option class="so-s20 so-android" value="guardiao">guardião</option><option class="so-s20 so-android" value="atualizacao">atualização</option></select><button onclick="logs()">Ver</button></div><div id="lgRes"></div><h2 style="margin-top:14px">Versões</h2><div id="ver"><span class="spin"></span></div></details>
+  <div class="card so-s20 so-android"><h2>Tela do aparelho</h2><div class="row"><button class="grow" onclick="executa('sis.tela',{modo:'uso'},{rotulo:'Modo uso'})">Modo uso</button><button class="grow" onclick="executa('sis.tela',{modo:'servidor'},{rotulo:'Modo servidor'})">Modo servidor</button></div></div>
+  <div class="card"><h2>Atualizações</h2><p class="sub so-s20 so-android">O aparelho se atualiza sozinho todo domingo às 4h. Use os botões para atualizar agora.</p><p class="sub so-vps">Na VPS o painel só consulta: atualizar fica bloqueado pelo nível escolhido.</p><div class="row"><button class="grow so-s20 so-android pri" onclick="atualizaTudoDireto()">Atualizar tudo</button><button class="grow" onclick="buscaAtualizacoes()">Ver o que mudou</button></div><div id="atuRes" class="sub"></div></div>
+  <div class="card so-s20 so-android"><h2>Manutenção</h2><button class="perigo" style="width:100%" onclick="executa('sis.reboot',{},{rotulo:'Reiniciar o aparelho',classe:'D',texto:'O painel some por cerca de 2 minutos.',digitar:'REINICIAR'})">Reiniciar o aparelho</button></div>
   <div class="card"><h2>PIN</h2><label>PIN atual</label><input id="pA" type="password" inputmode="numeric"><label>PIN novo (4 a 12 dígitos)</label><input id="pN" type="password" inputmode="numeric"><label>Repita o PIN novo</label><input id="pR" type="password" inputmode="numeric"><button style="width:100%;margin-top:8px" onclick="trocaPin()">Trocar PIN</button><button style="width:100%;margin-top:8px" onclick="api('/api/sair',{}).then(mostraLogin)">Sair</button></div>`);
   try{const v=(await acao("sis.versoes")).dados;$("#ver").innerHTML=`<div class="lista">${Object.entries(v).map(([k,x])=>`<div><b style="width:90px">${esc(k)}</b><span class="sub" style="white-space:pre-line">${esc(x)}</span></div>`).join("")}</div>`}catch(e){$("#ver").textContent=e.message}
 };
@@ -318,7 +318,7 @@ async function trocaPin(){if($("#pN").value!==$("#pR").value)return toast("Os PI
 
 // ---------- navegação e login ----------
 function tela(html){$("#tela").innerHTML=html;window.scrollTo(0,0)}
-function navega(t){if(MODO==="vps"&&t==="al")t="inicio";atual=t;try{localStorage.setItem("tela",t)}catch{}$("#nav").innerHTML=TELAS.filter(([k])=>!(MODO==="vps"&&k==="al")).map(([k,n])=>`<button ${k===atual?'aria-current="page"':""} onclick="navega('${k}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICON[k]}</svg>${n}</button>`).join("");T[t]()}
+function navega(t){if(MODO!=="android"&&t==="al")t="inicio";atual=t;try{localStorage.setItem("tela",t)}catch{}$("#nav").innerHTML=TELAS.filter(([k])=>!(MODO!=="android"&&k==="al")).map(([k,n])=>`<button ${k===atual?'aria-current="page"':""} onclick="navega('${k}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICON[k]}</svg>${n}</button>`).join("");T[t]()}
 function mostraLogin(){$("#app").classList.add("hide");$("#login").classList.remove("hide");$("#pin").value="";setTimeout(()=>$("#pin").focus(),50)}
 async function entrar(){try{await api("/api/login",{pin:$("#pin").value});$("#login").classList.add("hide");$("#app").classList.remove("hide");await carregaInfo();navega(atual)}catch(e){$("#loginErro").textContent=e.message}}
 $("#pin").addEventListener("keydown",e=>{if(e.key==="Enter")entrar()});

@@ -1,10 +1,11 @@
 #!/bin/bash
-# Implanta o painel no S20 pela tailnet. Idempotente. Uso: scripts/implantar.sh
+# Implanta o painel num Android com RAVI (extras/android), pela tailnet. Idempotente.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 CFG=../config.env; [ -f "$CFG" ] || { echo "Crie o config.env a partir de config.env.example"; exit 1; }
 set -a; . "$CFG"; set +a
-H=$S20_HOST; K=$(eval echo "$S20_SSH_KEY"); PINF=$(eval echo "$PIN_ARQUIVO")
+[ -n "${ANDROID_HOST:-}" ] || { echo "ANDROID_HOST vazio no config.env"; exit 1; }
+H=$ANDROID_HOST; K=$(eval echo "$ANDROID_SSH_KEY"); PINF=$(eval echo "$PIN_ARQUIVO")
 SSH=(ssh -i "$K" -o IdentitiesOnly=yes -o BatchMode=yes -o ConnectTimeout=15)
 SCP=(scp -q -i "$K" -o IdentitiesOnly=yes -o BatchMode=yes)
 

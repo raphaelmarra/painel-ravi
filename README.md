@@ -1,77 +1,81 @@
-# ravi-s20-servidor
+# Painel RAVI
 
-Transforma um celular Android antigo (testado num Galaxy S20) num servidor dedicado para o [RAVI](https://github.com/filipexyz/ravi), com um painel de botões para operar tudo sem terminal.
+Painel web de botões para operar um servidor [RAVI](https://github.com/filipexyz/ravi) sem terminal. Cada botão executa um comando fixo e seguro; não há IA no meio. Roda em qualquer servidor Linux com RAVI e, opcionalmente, num celular Android transformado em servidor.
 
-O que vem aqui:
+## Funcionalidades
 
-- **Painel:** página web de botões fixos para WhatsApp (pair code e QR), agentes, rotas por conversa, providers (Claude, Codex e Pi), alertas, atualizações e manutenção. Abre na tela do próprio celular e em outros aparelhos pelo Tailscale.
-- **Guardião:** vigia que religa serviços travados, faz backup diário, atualiza toda semana com volta automática e controla o ciclo da bateria.
-- **Base do S20:** scripts de boot, montagem do chroot e enxugamento do Android.
-- **Shim de memória compartilhada:** permite rodar o PostgreSQL dentro do Android.
+**WhatsApp**
+- Nova conexão em passos, com **pair code** (código de 8 caracteres) ou QR.
+- Código de pareamento para conexão existente desconectada.
+- Trocar o agente que responde uma conexão.
+- **Rotas por conversa:** escolha um grupo ou contato numa lista e mande para outro agente. Também por prefixo de número (DDD ou país).
 
-## Como funciona
+**Agentes**
+- Criar agente com provider Claude, Codex ou Pi (com escolha de modelo).
+- Editar as instruções, com histórico das versões anteriores.
+- Conversa de teste e apagar agente (a pasta vai para um arquivo, não some).
 
-```
-Android (LineageOS + Magisk)
- ├── /data/adb/service.d/ravi-boot.sh   sobe tudo no boot
- ├── guardião (root)                    vigia, backup, atualização, bateria
- ├── ajudante root do painel            ações que exigem root, por lista fechada
- └── chroot Ubuntu 24.04 (/data/local/ravi)
-      ├── tailscaled (userspace) + sshd em 127.0.0.1
-      └── usuário ravi, sob PM2:
-           RAVI · Omni (WhatsApp) · NATS · PostgreSQL · painel (127.0.0.1:8090)
-```
+**Providers de IA**
+- **Claude** por assinatura (código do `claude setup-token`).
+- **Codex** por assinatura do ChatGPT (login por código).
+- **Pi:** mais de 20 serviços por chave de API (DeepSeek, OpenAI, Gemini, OpenRouter, Groq, xAI, Mistral…). Testa a chave na hora.
+- Guias "Como conseguir" ao lado de cada credencial.
+- Ligar o servidor ao Ravi Console oficial.
 
-O painel escuta só em `127.0.0.1` e sai para a tailnet pelo `tailscale serve`. Cada botão executa um comando fixo de uma lista fechada, sem shell. Ações que exigem root passam por um ajudante com lista própria.
+**Operação**
+- Estado dos serviços com nomes simples (ponte do WhatsApp, banco de dados, fila interna, RAVI).
+- Buscar atualizações de RAVI, Omni, Bun, Node, PM2, Tailscale e Pi, com política de versão maior.
+- Registros técnicos, diagnóstico e religar serviços numa área "Avançado".
+- **Vários servidores:** um seletor no topo troca entre os seus servidores.
 
-## Requisitos
+**Segurança**
+- PIN para todo acesso, com freio de tentativas que dobra a espera até 60 minutos.
+- Lista fechada de ações, sem shell; parâmetros validados.
+- Confirmação para ações destrutivas, de credencial e de envio.
+- Auditoria de cada clique; segredos nunca voltam na tela.
+- **Três modos:** `completo` (servidor comum), `vps` (só leitura e ações reversíveis, para produção) e `android` (inclui bateria, tela e guardião).
 
-- Android com bootloader desbloqueado, LineageOS e Magisk (root). Testado: Galaxy S20 (SM-G980F), LineageOS 24.0, Magisk 31.1.
-- Uma conta no [Tailscale](https://tailscale.com) e o Tailscale no computador de onde você administra.
-- Um computador com `bash`, `ssh` e [Bun](https://bun.sh) para implantar o painel.
+## Instalação num servidor Linux
 
-## Instalação (resumo)
-
-A parte do Android e do chroot é manual e depende do aparelho. Os passos estão em [`docs/instalacao-s20.md`](docs/instalacao-s20.md) e as armadilhas em [`docs/aprendizados.md`](docs/aprendizados.md). Em resumo:
-
-1. Instale LineageOS e Magisk.
-2. Monte o chroot Ubuntu 24.04 em `/data/local/ravi` com os scripts de [`s20/base/`](s20/base).
-3. Crie o usuário `ravi` (grupos `aid_inet` 3003 e `aid_net_raw` 3004) e instale Bun, RAVI, Omni, PM2 e PostgreSQL 16.
-4. Compile o shim ([`s20/shim/shmshim.c`](s20/shim/shmshim.c)) e rode o PostgreSQL com `LD_PRELOAD`.
-5. Instale o guardião ([`s20/guardiao/`](s20/guardiao)) e o boot ([`s20/base/ravi-boot.sh`](s20/base/ravi-boot.sh)).
-
-Depois, implante o painel a partir do seu computador:
+Requisitos no servidor: usuário `ravi` com RAVI, Omni, PM2 e [Bun](https://bun.sh); [Tailscale](https://tailscale.com) para o acesso. No seu computador: `bash`, `ssh` e acesso SSH como root ao servidor.
 
 ```bash
-cp config.env.example config.env   # preencha com o seu S20 e a sua tailnet
-cd painel && ./scripts/implantar.sh
+cp config.env.example config.env   # preencha SERVIDOR_HOST, SERVIDOR_SSH_KEY, SERVIDOR_MODO
+cd painel && ./scripts/implantar-servidor.sh
 ```
 
-O script cria um PIN inicial e o guarda no arquivo indicado em `PIN_ARQUIVO`, fora do repositório. Troque o PIN pelo painel em **Sistema**.
+O script copia o painel para `/home/ravi/painel`, sobe o processo `painel` no PM2, publica na tailnet com `tailscale serve` e define o PIN a partir do arquivo indicado em `PIN_ARQUIVO`. Passo a passo em [`docs/instalacao-servidor.md`](docs/instalacao-servidor.md).
 
-## Segurança
+## Celular Android como servidor (opcional)
 
-- **Nenhum segredo vai para o repositório.** O `config.env` fica fora do Git. PIN, tokens e chaves ficam no aparelho ou em `~/.credentials/`.
-- **Todo acesso ao painel exige PIN.** O freio de tentativas dobra a espera a cada bloqueio, até 60 minutos.
-- **Atenção ao Tailscale em modo userspace:** ele entrega ao `127.0.0.1` do celular conexões da tailnet para **qualquer** porta. Escutar em loopback não isola os serviços da tailnet. Use uma ACL do Tailscale que libere só as portas 22 e 443 do servidor. Modelo em [`docs/acl-tailscale.md`](docs/acl-tailscale.md).
-- **Modo VPS (opcional):** o mesmo painel roda numa VPS com `PAINEL_MODO=vps`. Nesse modo, o servidor só aceita leitura e ações reversíveis, e recusa ações destrutivas com `403`.
+Um celular antigo com LineageOS e Magisk vira um servidor RAVI dedicado. A pasta [`extras/android/`](extras/android) traz:
+
+- **Guardião:** religa serviços travados, backup diário, atualização semanal com volta automática e **ciclo de bateria** (ex.: entre 30% e 80%).
+- **Base:** boot, chroot Ubuntu e enxugamento do Android.
+- **Shim de memória compartilhada:** permite rodar o PostgreSQL no kernel do Android.
+
+Guia em [`docs/instalacao-android.md`](docs/instalacao-android.md), testado num Galaxy S20. Armadilhas medidas em [`docs/aprendizados.md`](docs/aprendizados.md).
+
+## Segurança da rede
+
+O painel escuta só em `127.0.0.1` e sai pela tailnet com `tailscale serve`. Num servidor com Tailscale em modo **userspace** (comum em containers e no Android), o `127.0.0.1` fica alcançável pela tailnet em **todas** as portas. Nesse caso, use uma ACL do Tailscale: modelo em [`docs/acl-tailscale.md`](docs/acl-tailscale.md).
+
+Nenhum segredo vai para o repositório. O `config.env` fica fora do Git; PIN, tokens e chaves ficam no servidor ou em `~/.credentials/`.
 
 ## Estrutura
 
 | Pasta | Conteúdo |
 |---|---|
-| `painel/src/` | servidor (`server.ts`), lista de ações (`acoes.ts`), interface (`ui.html`), envio de alerta |
-| `painel/scripts/` | implantação, ajudante root, consulta de versões, atualização com volta, PIN |
-| `s20/guardiao/` | guardião, sondas de saúde, backup, configuração |
-| `s20/base/` | boot, montagem e entrada no chroot, enxugamento do Android |
-| `s20/shim/` | shim de memória compartilhada para o PostgreSQL |
+| `painel/src/` | servidor (`server.ts`), lista de ações (`acoes.ts`), interface (`ui.html`) |
+| `painel/scripts/` | implantação, consulta de versões, atualização com volta, PIN |
+| `extras/android/` | guardião, base do Android e shim do PostgreSQL |
 | `docs/` | instalação, aprendizados, ACL, tabela de botões |
 
 ## Limites conhecidos
 
-- A geração real de pair code e o roteamento de uma mensagem por rota de contato não foram testados de ponta a ponta.
-- Na tela do próprio celular, um servidor de outro aparelho não abre: o Android fica fora da tailnet (só o chroot está nela).
-- O LineageOS e o Magisk só atualizam à mão, com cabo USB e recovery.
+- A geração real de pair code e o roteamento de uma mensagem por rota de contato ainda não foram testados de ponta a ponta.
+- No modo `completo`, atualizar pelo painel não está disponível: atualize pelo gerenciador do servidor.
+- Rotas de contato aparecem só para contatos com número; contatos com código de privacidade do WhatsApp (`@lid`) não aparecem.
 
 ## Licença
 

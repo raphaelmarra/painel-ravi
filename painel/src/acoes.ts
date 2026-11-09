@@ -5,8 +5,14 @@ import { join } from "path";
 import { randomUUID } from "crypto";
 
 const HOME = "/home/ravi";
-// Modo do servidor: "s20" (tudo) ou "vps" (só leitura e ações reversíveis, sem Android). Decisão do dono do servidor.
-export const MODO = (process.env.PAINEL_MODO ?? "s20") as "s20" | "vps";
+// Modo do servidor (PAINEL_MODO):
+//   android  = tudo, inclusive ações do Android (bateria, tela, reboot, guardião). "s20" é aceito como sinônimo.
+//   completo = servidor Linux comum: tudo, menos as ações do Android.
+//   vps      = só leitura e ações reversíveis (servidor em produção).
+const MODO_BRUTO = process.env.PAINEL_MODO ?? "android";
+export const MODO = (MODO_BRUTO === "s20" ? "android" : MODO_BRUTO) as "android" | "completo" | "vps";
+// Ações que dependem do Android (ajudante root, guardião, bateria, tela).
+const ACOES_ANDROID = new Set(["inicio.backup", "sis.atualizar", "sis.tela", "sis.reboot", "al.estado", "al.destino", "al.teste"]);
 const ACOES_VPS = new Set([
   "inicio.estado", "inicio.reiniciar", "inicio.diagnostico",
   "wpp.lista", "wpp.nova", "wpp.parear", "wpp.qr", "wpp.agente", "rota.lista", "rota.conversas", "rota.add",
@@ -14,7 +20,7 @@ const ACOES_VPS = new Set([
   "ag.lista", "ag.ver", "ag.salvar", "ag.criar",
   "sis.logs", "sis.versoes", "sis.buscar",
 ]);
-export const permitido = (id: string) => MODO === "s20" || ACOES_VPS.has(id);
+export const permitido = (id: string) => MODO === "android" || (MODO === "completo" ? !ACOES_ANDROID.has(id) : ACOES_VPS.has(id));
 const FILA = "/run/painel-root"; // = /data/local/ravi/run/painel-root no Android
 const PAINEL = join(HOME, ".painel");
 const PI_AUTH = join(HOME, ".pi/agent/auth.json");
@@ -180,7 +186,7 @@ export type Acao = { classe: Classe; rotulo: string; run: (p: Record<string, str
 export const ACOES: Record<string, Acao> = {
   // Início
   "inicio.estado": { classe: "L", rotulo: "Atualizar estado", run: async () => {
-    if (MODO === "vps") {
+    if (MODO !== "android") {
       const [p, h] = await Promise.all([roda(["pm2", "jlist"]), roda(["curl", "-s", "-m", "8", "http://127.0.0.1:8882/api/v2/health"])]);
       const apps = (json<any[]>(p.out) ?? []).map((x) => ({ nome: x.name, status: x.pm2_env.status, reinicios: x.pm2_env.restart_time, mem: x.monit?.memory }));
       const on = (n: string) => apps.find((a) => a.nome === n)?.status === "online" ? "ok" : "fail";
@@ -425,7 +431,7 @@ export const ACOES: Record<string, Acao> = {
   // Sistema
   "sis.logs": { classe: "L", rotulo: "Logs", run: async (p) => {
     const s = exige(p, "svc", V.logsvc, "Serviço inválido.");
-    if (MODO === "vps" && (s === "guardiao" || s === "atualizacao")) throw new Error("Este log só existe no S20.");
+    if (MODO !== "android" && (s === "guardiao" || s === "atualizacao")) throw new Error("Este registro só existe no modo Android.");
     const r = s === "guardiao" ? await root("guardlog") : s === "atualizacao" ? await root("updatelog") : await roda(["pm2", "logs", s, "--nostream", "--lines", "100", "--raw"]);
     return { ok: r.rc === 0, texto: "Últimas linhas.", dados: { texto: r.out } };
   } },
@@ -436,15 +442,15 @@ export const ACOES: Record<string, Acao> = {
   "sis.versoes": { classe: "L", rotulo: "Versões", run: async () => {
     const v = async (a: string[]) => (await roda(a)).out.split("\n")[0];
     const os = readFileSync("/etc/os-release", "utf8").match(/PRETTY_NAME="([^"]+)"/)?.[1];
-    const and = MODO === "vps" ? "" : (await root("versoes")).out;
+    const and = MODO !== "android" ? "" : (await root("versoes")).out;
     return { ok: true, texto: "Versões lidas.", dados: { sistema: os, ravi: await v(["ravi", "--version"]), omni: await v(["omni", "--version"]), node: await v(["node", "-v"]), bun: await v(["bun", "--version"]), pm2: await v(["pm2", "--version"]), android: and } };
   } },
   "sis.buscar": { classe: "L", rotulo: "Buscar atualizações", run: async () => {
-    if (MODO === "vps") {
+    if (MODO !== "android") {
       const v = await roda(["bun", join(import.meta.dir, "versoes.ts"), "--json"], 90_000);
       const linhas = (json<any[]>(v.out) ?? []).filter((l) => !["lineage", "magisk"].includes(l.id));
       const pend = linhas.filter((l) => l.estado === "atualizar").length;
-      return { ok: v.rc === 0, texto: (pend ? `${pend} com versão nova.` : "Tudo em dia.") + " Na VPS o painel só consulta; a atualização é feita pelo processo da VPS.", dados: linhas };
+      return { ok: v.rc === 0, texto: (pend ? `${pend} com versão nova.` : "Tudo em dia.") + (MODO === "vps" ? " Neste servidor o painel só consulta." : " Atualize pelo gerenciador do servidor."), dados: linhas };
     }
     const [v, apt, and] = await Promise.all([roda(["bun", "/usr/local/lib/ravi-guard/versoes.ts", "--json"], 90_000), root("aptcheck", "", 180_000), root("versoes")]);
     const linhas = json<any[]>(v.out) ?? [];

@@ -7,7 +7,7 @@ import { ACOES, jobs, limpa, MODO, permitido } from "./acoes";
 // Servidores que aparecem no seletor (mesma lista nos dois painéis). Configurável por arquivo.
 const SERVIDORES_ARQ = join(process.env.HOME ?? "/home/ravi", ".painel", "servidores.json");
 const servidores = () => { try { return JSON.parse(readFileSync(SERVIDORES_ARQ, "utf8")); } catch { return []; } };
-const NOME = process.env.PAINEL_NOME ?? (MODO === "vps" ? "VPS" : "S20");
+const NOME = process.env.PAINEL_NOME ?? (MODO === "android" ? "Android" : "Servidor");
 
 const PORTA = Number(process.env.PAINEL_PORTA ?? 8090);
 const DIR = join(process.env.HOME ?? "/home/ravi", ".painel");

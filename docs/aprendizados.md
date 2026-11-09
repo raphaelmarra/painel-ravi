@@ -5,7 +5,7 @@ Cada item foi medido num Galaxy S20 com LineageOS 24 e kernel 4.19.
 ## Sistema
 
 - **Ubuntu 26.04 não serve em kernel 4.19.** O GNU tar do 26.04 falha com "Function not implemented" em qualquer arquivo. Use o 24.04 LTS (suporte até 2029).
-- **O kernel Android não tem memória compartilhada SysV** (`shmget`). O PostgreSQL sempre cria um segmento SysV pequeno. Rode o PostgreSQL com o shim (`s20/shim/shmshim.c`) em `LD_PRELOAD`. O PostgreSQL embutido do Omni (pgserve) falha calado: o `omni install` diz sucesso e a API entra em loop "Database not ready".
+- **O kernel Android não tem memória compartilhada SysV** (`shmget`). O PostgreSQL sempre cria um segmento SysV pequeno. Rode o PostgreSQL com o shim (`extras/android/shim/shmshim.c`) em `LD_PRELOAD`. O PostgreSQL embutido do Omni (pgserve) falha calado: o `omni install` diz sucesso e a API entra em loop "Database not ready".
 - **Dois chroots no mesmo Android dividem a rede.** As portas colidem, e um teste de saúde pode responder pelo serviço errado.
 - **`du` num chroot entra no `/proc` montado.** Exclua `proc`, `sys` e `dev`. Antes de apagar um chroot, confirme que nada está montado dentro dele.
 
